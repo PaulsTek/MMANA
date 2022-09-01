@@ -1,23 +1,21 @@
 MMANA
 =====
 
-JE3HHT 森OMが作成された、Windows上で動作するアンテナ設計解析プログラムです。
-森OMのご支援により、2013年8月オープンソースとなりました。
+JE3HHT An antenna design analysis program that runs on Windows, created by Mori OM. Five With the support of Mori OM, it became open source in August 2013.
 
-ライセンスはGNU Lesser Public General License (LGPL)です。詳細については
+The license is the GNU Lesser Public General License (LGPL). For more information
 http://www.gnu.org/licenses/lgpl-3.0.en.html
 を参照してください。
 
-ソースコードは次のGitHubにて公開されています。
+The source code is published on the following GitHub.
 https://github.com/ja7ude/MMANA
 
+Anyone can create public and private branches as long as they comply with the LGPL rules. As of August 2013, the only Committer is JA7UDE Oba, but in the future, if anyone is willing to cooperate with the operation and management, we will respond at any time.
 
-LGPL規約を遵守する限り、どなたでも、publicブランチ、privateブランチを作ることができます。Committerは2013年8月現在、JA7UDE 大庭のみですが、今後、運営管理に協力いただける方がいらっしゃれば、随時対応させていただきます。
-
-オリジナルのMMANAはBorland C++ Builder バージョン3.0で開発されており、その開発環境は10年以上前に販売終了となっています。そのため、バージョン3.0を入手することはかなり困難な状況にあります。少しでも多くの方にMMANAソースコードを有効利用していただけることを考慮し、C++ Builderの最新版（2013年8月現在）である、XE4でビルドできるように、ソースコードを書き換えました。
+The original MMANA was developed with Borland C++ Builder version 3.0, a development environment that was discontinued over ten years ago. So getting version 3.0 is quite difficult. Considering that the MMANA source code can be used effectively by as many people as possible, we have rewritten the source code so that it can be built with XE4, the latest version of C++ Builder (as of August 2013).
 http://www.embarcadero.com/jp/products/cbuilder
 
-C++ Builder XE4には数種類のバージョンがありますが、一番安い　C++ Builder XE4 Starter ESDでビルドできます。また、期間限定の無料体験版もあるようですので、とりあえずそれを使って試す手もあるかと思われます。
+There are several versions of C++ Builder XE4, but you can build with the cheapest C++ Builder XE4 Starter ESD. Also, there seems to be a free trial version for a limited time, so it seems that there is also a way to try using it for the time being.
 
 73
 JA7UDE
