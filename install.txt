@@ -1,25 +1,20 @@
-[ƒZƒbƒgƒAƒbƒv‚Ì•û–@]
-  ƒZƒbƒgƒAƒbƒv‚µ‚½‚¢ƒhƒ‰ƒCƒu‚Éƒ_ƒEƒ“ƒ[ƒh‚µ‚½uMMANA***.EXEv‚ğ
-ƒRƒs[‚µÀs‚µ‚Ü‚·i###‚Íƒo[ƒWƒ‡ƒ“”Ô†‚Å‚·jB
-@ƒfƒBƒŒƒNƒgƒŠiƒtƒHƒ‹ƒ_j•t‚«‚Ì©ŒÈ‰ğ“€Œ`®‚Å‚·‚Ì‚ÅAuMMANAv
-‚Æ‚¢‚¤ƒfƒBƒŒƒNƒgƒŠ‚ªì¬‚³‚ê‚Ä‚»‚Ì’†‚É‚·‚×‚Ä‰ğ“€‚³‚ê‚Ü‚·B
+[ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã®æ–¹æ³•]
+  ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã—ãŸã„ãƒ‰ãƒ©ã‚¤ãƒ–ã«ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ãŸã€ŒMMANA***.EXEã€ã‚’
+ã‚³ãƒ”ãƒ¼ã—å®Ÿè¡Œã—ã¾ã™ï¼ˆ###ã¯ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ã§ã™ï¼‰ã€‚
+ã€€ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªï¼ˆãƒ•ã‚©ãƒ«ãƒ€ï¼‰ä»˜ãã®è‡ªå·±è§£å‡å½¢å¼ã§ã™ã®ã§ã€ã€ŒMMANAã€
+ã¨ã„ã†ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãŒä½œæˆã•ã‚Œã¦ãã®ä¸­ã«ã™ã¹ã¦è§£å‡ã•ã‚Œã¾ã™ã€‚
+
+[How to set up] 
+Copy and run the downloaded MMANA***.EXE to the drive you want to set up (### is the version number).ã€€Since it is a self-extracting format with a directory (folder), a directory called "MMANA" is created and all are decompressed in it.
+
+[Execution method] 
+"MMANA.EXE" decompressed in the directory "MMANA" is the main program So double-click it to run it (My Computer Or "MMANA.EXE" is displayed as an icon when displayed in Explorer. increase). 
+Files with the extension "maa" in the subdirectory "MMANA\ANT\" is a sample antenna definition file.
 
 
-[Às•û–@]
-  ƒfƒBƒŒƒNƒgƒŠuMMANAv“à‚É‰ğ“€‚³‚ê‚½uMMANA.EXEv‚ªƒvƒƒOƒ‰ƒ€–{‘Ì
-‚Å‚·‚Ì‚ÅA‚»‚ê‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚µ‚ÄÀs‚µ‚Ä‰º‚³‚¢iƒ}ƒCƒRƒ“ƒsƒ…[ƒ^
-‚Ü‚½‚ÍƒGƒNƒXƒvƒ[ƒ‰‚Å•\¦‚·‚é‚ÆuMMANA.EXEv‚ÍƒAƒCƒRƒ“‚Å•\¦‚³‚ê
-‚Ü‚·jB
-@ƒTƒuƒfƒBƒŒƒNƒgƒŠuMMANA\ANT\v“à‚É‚ ‚éŠg’£q‚ªumaav‚Ìƒtƒ@ƒCƒ‹
-‚ÍƒTƒ“ƒvƒ‹‚ÌƒAƒ“ƒeƒi’è‹`ƒtƒ@ƒCƒ‹‚Å‚·B
+[How to uninstall] 
+Delete all files in the directory "MMANA".
 
+MMANA in the system registry and Windows directory does not create registry files in Uninstall MMANA just delete all MMANA folders (directories) is OK.
 
-[ƒAƒ“ƒCƒ“ƒXƒg[ƒ‹‚Ì•û–@]
-  ƒfƒBƒŒƒNƒgƒŠuMMANAv“à‚Ì‚·‚×‚Ä‚Ìƒtƒ@ƒCƒ‹‚ğíœ‚µ‚Ä‰º‚³‚¢B
-
-@‚l‚l‚`‚m‚`‚ÍƒVƒXƒeƒ€ƒŒƒWƒXƒgƒŠ‚¨‚æ‚Ñ‚v‚‰‚‚„‚‚—‚“ƒfƒBƒŒƒNƒgƒŠ“à
-‚ÉƒŒƒWƒXƒgƒŠƒtƒ@ƒCƒ‹‚ğì¬‚µ‚Ü‚¹‚ñB‚l‚l‚`‚m‚`‚ğƒAƒ“ƒCƒ“ƒXƒg[ƒ‹‚·
-‚éê‡‚ÍA‚l‚l‚`‚m‚`‚ÌƒtƒHƒ‹ƒ_iƒfƒBƒŒƒNƒgƒŠj‚ğ‚·‚×‚Äíœ‚·‚é‚¾‚¯
-‚Å‚n‚j‚Å‚·B
-
-@@@@@@@@@@@@@@@@@@@@@@@@JE3HHT@X@@½
+ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€JE3HHTã€€æ£®ã€€ã€€èª 
