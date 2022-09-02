@@ -1,9 +1,3 @@
-[セットアップの方法]
-  セットアップしたいドライブにダウンロードした「MMANA***.EXE」を
-コピーし実行します（###はバージョン番号です）。
-　ディレクトリ（フォルダ）付きの自己解凍形式ですので、「MMANA」
-というディレクトリが作成されてその中にすべて解凍されます。
-
 [How to set up] 
 Copy and run the downloaded MMANA***.EXE to the drive you want to set up (### is the version number).　Since it is a self-extracting format with a directory (folder), a directory called "MMANA" is created and all are decompressed in it.
 
