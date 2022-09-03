@@ -27,23 +27,23 @@
 #include <math.h>
 #include <mbstring.h>
 //---------------------------------------------------------------------------
-#define	WMAX	512		// ƒƒCƒ„‚Ì”
-#define	WZMAX	4096	// “WŠJƒƒCƒ„‚Ì”
-#define	CMAX	64		// ‹‹“d“_‚Ì”
-#define	LMAX	100		// ƒ[ƒh‚Ì”
-#define	EMAX	15		// ŠÂ‹«‚Ì”
-#define	PMAX	8192	// ˆµ‚¦‚éƒpƒ‹ƒX‚Ì”
-#define	SMAX	12		// S-DOMAIN‚ÌŠK”
+#define	WMAX	512		// number of wires
+#define	WZMAX	4096		// Number of unfold wires
+#define	CMAX	64		// Number of feed points
+#define	LMAX	100		// number of loads
+#define	EMAX	15		// number of environments
+#define	PMAX	8192		// Number of pulses that can be handled
+#define	SMAX	12		// Number of S-DOMAIN floors
 
 #define	PTMAX	10
 #define	PPMAX	10
 
-#define	RESMAX	10		// Œ‹‰Ê”äŠr‚ÌÅ‘å‚Ì”
+#define	RESMAX	10		// Maximum number of result comparisons
 
 #define	VERSTR	"MMANA Ver1.77 (C) JE3HHT 1999-2000"
-#define RESSTR	"MMANA Res1.16\x1a"	// RESVER‚Æ“¯‚¶’l
-#define ACALSTR	"MMANA Opt1.13\x1a"	// OPTVER‚Æ“¯‚¶’l
-#define	RESVER	116		// RES Ver‚ğ•ÏX‚µ‚½ê‡ TMainWnd::LoadResFile()‚ğƒ`ƒFƒbƒN
+#define RESSTR	"MMANA Res1.16\x1a"	// Same value as RESVER
+#define ACALSTR	"MMANA Opt1.13\x1a"	// OSame value as OPTVER
+#define	RESVER	116			// If RES Ver is changed Check TMainWnd::LoadResFile()
 #define	OPTVER	113
 
 extern	LPCSTR	FreqTbl[];
@@ -51,7 +51,7 @@ extern	const char	ILLFMT[];
 
 enum TFontPitch { fpDefault, fpVariable, fpFixed };	//JA7UDE 0427
 
-typedef struct {		// ƒƒCƒ„[‚Ì’è‹`
+typedef struct {			// wire definition
 	double	X1;
 	double	Y1;
 	double	Z1;
@@ -59,32 +59,32 @@ typedef struct {		// ƒƒCƒ„[‚Ì’è‹`
 	double	Y2;
 	double	Z2;
 	double	R;
-	int		SEG;			// ƒZƒOƒƒ“ƒg”
+	int	SEG;			// number of segments
 
-	int		PNo;			// ƒƒCƒ„‚ÌŠJnƒpƒ‹ƒX”Ô†
-	int		PMax;			// ƒpƒ‹ƒX‚Ì”
+	int	PNo;			// wire start pulse number
+	int	PMax;			// number of pulses
 }WDEF;
-typedef struct {		// ‹‹“d“_‚Ì’è‹`
-	char	PLUS[8+1];		// ƒpƒ‹ƒXˆÊ’u
-	int		PLUSNo;			// ƒpƒ‹ƒX”Ô†
-	double	EV;				// “dˆ³
-	double	DEG;			// ˆÊ‘Š
+typedef struct {			// Feed point definition
+	char	PLUS[8+1];		// pulse position
+	int	PLUSNo;			// pulse number
+	double	EV;			// Voltage
+	double	DEG;			// phase
 }CDEF;
-typedef struct {		// ƒ[ƒh‚Ì’è‹`
+typedef struct {			// Load definition
 	int     TYPE;			// 0-L,C,Q, 1-R+jX, 2-S-Domain
-	char	PLUS[8+1];		// ƒpƒ‹ƒXˆÊ’u
-	int		PLUSNo;			// ƒpƒ‹ƒX”Ô†
-	int		SN;				// ŠK”
+	char	PLUS[8+1];		// pulse position
+	int	PLUSNo;			// pulse number
+	int	SN;			// Order
 	double	A[SMAX];
 	double	B[SMAX];
 }LDEF;
-typedef struct {		// •ªŠ„’è‹`
-	double	RR;				// QÆ‚q
+typedef struct {			// split definition
+	double	RR;			// Refer to R
 	double	L[PPMAX];
 	double	R[PPMAX];
-	int		Type;			// 0-’†‰›•ªŠ„, 1-n“_•ªŠ„
+	int	Type;			// 0-center division, 1-start point division
 }PDEF;
-typedef struct {		// ƒƒCƒ„[‚Ì’è‹`
+typedef struct {			// wire definition
 	double	X1;
 	double	Y1;
 	double	Z1;
@@ -92,71 +92,71 @@ typedef struct {		// ƒƒCƒ„[‚Ì’è‹`
 	double	Y2;
 	double	Z2;
 	double	R;
-	int		SEG;			// ƒZƒOƒƒ“ƒg”
+	int	SEG;			// number of segments
 
-	int		Wno;			// QÆŒ³‚ÌƒƒCƒ„”Ô†i‚O`j
-	int		PNo;			// ƒƒCƒ„‚ÌŠJnƒpƒ‹ƒX”Ô†
-	int		SNo;			// ƒƒCƒ„‚ÌŠJnƒZƒOƒƒ“ƒg”Ô† aX[SNo]
-	int		SMax;			// ƒZƒOƒƒ“ƒg”Ô†‚ÌÅ‘å’l
+	int	Wno;			// Reference wire number (0-)
+	int	PNo;			// wire start pulse number
+	int	SNo;			// Wire start segment number aX[SNo]
+	int	SMax;			// Maximum segment number
 }WZDEF;
-typedef struct {		// ƒAƒ“ƒeƒi‚Ì’è‹`
-	int		Edit;			// •ÒWƒtƒ‰ƒO
-	int		Flag;			// İ’èƒtƒ‰ƒO
-	char	Name[129];		// –¼Ì
-	double	fq;				// İŒvü”g”
-	int		wmax;			// ƒƒCƒ„[‚Ì”
-	WDEF	wdef[WMAX];		// ƒƒCƒ„[’è‹`
-	double	cfq;			// ‹‹“dü”g”
-	int		cmax;			// ‹‹“d“_‚Ì”
-	int		cauto;			// ‹‹“d“dˆ³©“®İ’è
-	CDEF	cdef[CMAX];		// ‹‹“d“_’è‹`
-	int		lenb;			// ƒ[ƒhŒvZ‚ğ‹–‰Â
+typedef struct {			// Antenna definition
+	int		Edit;			// edit flag
+	int		Flag;			// set flag
+	char	Name[129];		// name
+	double	fq;				// Design cycle number
+	int		wmax;			// number of wires
+	WDEF	wdef[WMAX];		// wire definition
+	double	cfq;			// Power supply cycle number
+	int		cmax;			// çµ¦é›»ç‚¹ã®æ•°
+	int		cauto;			// çµ¦é›»é›»åœ§è‡ªå‹•è¨­å®š
+	CDEF	cdef[CMAX];		// çµ¦é›»ç‚¹å®šç¾©
+	int		lenb;			// ãƒ­ãƒ¼ãƒ‰è¨ˆç®—ã‚’è¨±å¯
 	int		lmax;
 	LDEF	ldef[LMAX];
 
 	int		pmax;
-	PDEF	pdef[PTMAX];	// ƒƒCƒ„‘g‚İ‡‚í‚¹ƒf[ƒ^
+	PDEF	pdef[PTMAX];	// ãƒ¯ã‚¤ãƒ¤çµ„ã¿åˆã‚ã›ãƒ‡ãƒ¼ã‚¿
 
-	int		wzmax;			// “WŠJƒƒCƒ„[‚Ì”
-	WZDEF	wzdef[WZMAX];	// “WŠJƒƒCƒ„[’è‹`
+	int		wzmax;			// å±•é–‹ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æ•°
+	WZDEF	wzdef[WZMAX];	// å±•é–‹ãƒ¯ã‚¤ãƒ¤ãƒ¼å®šç¾©
 
-	double	MinZ;			// ’è‹`ƒƒCƒ„‚ÌÅ‰º•”‚Ì‚yÀ•W
+	double	MinZ;			// å®šç¾©ãƒ¯ã‚¤ãƒ¤ã®æœ€ä¸‹éƒ¨ã®ï¼ºåº§æ¨™
 
-	double	RMD;			// ”g’·iƒÉj
-	int		DM1;			// Å¬•ªŠ„• 1/DM1ƒÉ
-	int		DM2;			// Å‘å•ªŠ„• 1/DM2ƒÉ
-	int		EC;				// ’[“_‚ÌƒZƒOƒƒ“ƒg”
-	double	SC;				// •ªŠ„ŒW” (1-2)
+	double	RMD;			// æ³¢é•·ï¼ˆÎ»ï¼‰
+	int		DM1;			// æœ€å°åˆ†å‰²å¹… 1/DM1Î»
+	int		DM2;			// æœ€å¤§åˆ†å‰²å¹… 1/DM2Î»
+	int		EC;				// ç«¯ç‚¹ã®ã‚»ã‚°ãƒ¡ãƒ³ãƒˆæ•°
+	double	SC;				// åˆ†å‰²ä¿‚æ•° (1-2)
 
-	int		StackVT;		// “WŠJ•ûŒü 0-ã‰ºC‚P|ãŒü‚«C‚Q|‰ºŒü‚«
+	int		StackVT;		// å±•é–‹æ–¹å‘ 0-ä¸Šä¸‹ï¼Œï¼‘ï¼ä¸Šå‘ãï¼Œï¼’ï¼ä¸‹å‘ã
 	int		StackH;
 	int		StackV;
 	double	StackHW;
 	double	StackVW;
 }ANTDEF;
 
-typedef struct {		// ŒvZŠÂ‹«
-	int		type;			// 0-©—R‹óŠÔ, 1-Š®‘S‘å’n, 2-ƒŠƒAƒ‹ƒOƒ‰ƒ“ƒh
-	double	antheight;		// ’nã‚
-	int		mmax;			// ƒƒfƒBƒA‚Ì”
-	int		mtype;			// ƒƒfƒBƒA‚Ìí—Ş 0-ƒŠƒjƒA, 1-ƒOƒ‰ƒ“ƒhƒXƒNƒŠ[ƒ“
-	int		gscrcnt;		// ƒ‰ƒfƒBƒAƒ‹‚Ì–{”
-	double	gscrr;			// ƒ‰ƒWƒAƒ‹‚Ì”¼Œa
+typedef struct {		// è¨ˆç®—ç’°å¢ƒ
+	int		type;			// 0-è‡ªç”±ç©ºé–“, 1-å®Œå…¨å¤§åœ°, 2-ãƒªã‚¢ãƒ«ã‚°ãƒ©ãƒ³ãƒ‰
+	double	antheight;		// åœ°ä¸Šé«˜
+	int		mmax;			// ãƒ¡ãƒ‡ã‚£ã‚¢ã®æ•°
+	int		mtype;			// ãƒ¡ãƒ‡ã‚£ã‚¢ã®ç¨®é¡ 0-ãƒªãƒ‹ã‚¢, 1-ã‚°ãƒ©ãƒ³ãƒ‰ã‚¹ã‚¯ãƒªãƒ¼ãƒ³
+	int		gscrcnt;		// ãƒ©ãƒ‡ã‚£ã‚¢ãƒ«ã®æœ¬æ•°
+	double	gscrr;			// ãƒ©ã‚¸ã‚¢ãƒ«ã®åŠå¾„
 	double	rel[EMAX];		//
 	double	cond[EMAX];		//
-	double	intval[EMAX];	// ƒƒfƒBƒA‚Ì‹——£
-	double	height[EMAX];	// ƒƒfƒBƒA‚Ì‚‚³
+	double	intval[EMAX];	// ãƒ¡ãƒ‡ã‚£ã‚¢ã®è·é›¢
+	double	height[EMAX];	// ãƒ¡ãƒ‡ã‚£ã‚¢ã®é«˜ã•
 
-	int		fbr;			// F/B”ä‚ÌƒoƒbƒN‘¤”äŠr”ÍˆÍ
-	double	RO;				// SWR‚ÌŒvZƒCƒ“ƒs[ƒ_ƒ“ƒX
-	double	JXO;			// SWR‚ÌŒvZƒCƒ“ƒs[ƒ_ƒ“ƒXi•¡‘f”j
+	int		fbr;			// F/Bæ¯”ã®ãƒãƒƒã‚¯å´æ¯”è¼ƒç¯„å›²
+	double	RO;				// SWRã®è¨ˆç®—ã‚¤ãƒ³ãƒ”ãƒ¼ãƒ€ãƒ³ã‚¹
+	double	JXO;			// SWRã®è¨ˆç®—ã‚¤ãƒ³ãƒ”ãƒ¼ãƒ€ãƒ³ã‚¹ï¼ˆè¤‡ç´ æ•°ï¼‰
 	int		WireRoss;
-	int		pmax;			// ˆµ‚¤Å‘å‚Ìƒpƒ‹ƒX”
-	int		FontSize;		// ƒtƒHƒ“ƒg‚ÌƒTƒCƒY
+	int		pmax;			// æ‰±ã†æœ€å¤§ã®ãƒ‘ãƒ«ã‚¹æ•°
+	int		FontSize;		// ãƒ•ã‚©ãƒ³ãƒˆã®ã‚µã‚¤ã‚º
 }ENVDEF;
 extern	ENVDEF	env;
 
-typedef struct {		// “d—¬ƒtƒ@ƒCƒ‹—pƒƒ‚ƒŠ
+typedef struct {		// é›»æµãƒ•ã‚¡ã‚¤ãƒ«ç”¨ãƒ¡ãƒ¢ãƒª
 	int		Flag;
 	int		W;
 	float	X;
@@ -167,9 +167,9 @@ typedef struct {		// “d—¬ƒtƒ@ƒCƒ‹—pƒƒ‚ƒŠ
 	float	MAG;
 	float	DEG;
 }CURFILE;
-typedef struct {		// ‹ß‹——£“dŠE‹­“xƒtƒ@ƒCƒ‹
+typedef struct {		// è¿‘è·é›¢é›»ç•Œå¼·åº¦ãƒ•ã‚¡ã‚¤ãƒ«
 	FILE	*fp;
-	char	Name[256];		// ƒtƒ@ƒCƒ‹–¼
+	char	Name[256];		// ãƒ•ã‚¡ã‚¤ãƒ«å
 	int		TYPE;
 	double	POW;
 	double	X;
@@ -182,7 +182,7 @@ typedef struct {		// ‹ß‹——£“dŠE‹­“xƒtƒ@ƒCƒ‹
 	double	ZW;
 	int		ZN;
 }NEARFILE;
-typedef struct {		// ‰“‹——£“dŠE‹­“xƒtƒ@ƒCƒ‹
+typedef struct {		// é è·é›¢é›»ç•Œå¼·åº¦ãƒ•ã‚¡ã‚¤ãƒ«
 	FILE	*fp;
 	char	Name[256];
 	double	Z;
@@ -192,35 +192,35 @@ typedef struct {		// ‰“‹——£“dŠE‹­“xƒtƒ@ƒCƒ‹
 	double	AW;
 	int		AN;
 }FARFILE;
-typedef struct {		// ÀsŠÂ‹«‚Ì’è‹`
-	double	AntXc;			// ƒAƒ“ƒeƒiŒ`ó•\¦‚Ì’†S
-	double	AntYc;			// ƒAƒ“ƒeƒiŒ`ó•\¦‚Ì’†S
+typedef struct {		// å®Ÿè¡Œç’°å¢ƒã®å®šç¾©
+	double	AntXc;			// ã‚¢ãƒ³ãƒ†ãƒŠå½¢çŠ¶è¡¨ç¤ºã®ä¸­å¿ƒ
+	double	AntYc;			// ã‚¢ãƒ³ãƒ†ãƒŠå½¢çŠ¶è¡¨ç¤ºã®ä¸­å¿ƒ
 
-	int		CalcDisp;		// Å“K‰»’†‚Ì‰æ–ÊXV
-	int		CalcAbort;		// Å“K‰»’†~ƒtƒ‰ƒO
-	int		CalcF;			// ŒvZÀsƒtƒ‰ƒO
-	int		CalcLog;		// ƒƒOƒEƒCƒ“ƒhƒE‚Ö‚Ì•\¦ƒtƒ‰ƒO
+	int		CalcDisp;		// æœ€é©åŒ–ä¸­ã®ç”»é¢æ›´æ–°
+	int		CalcAbort;		// æœ€é©åŒ–ä¸­æ­¢ãƒ•ãƒ©ã‚°
+	int		CalcF;			// è¨ˆç®—å®Ÿè¡Œãƒ•ãƒ©ã‚°
+	int		CalcLog;		// ãƒ­ã‚°ã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ã¸ã®è¡¨ç¤ºãƒ•ãƒ©ã‚°
 
-	int		RmdSel;			// ƒGƒŒƒƒ“ƒg•ÒW‚Ì”g’·•\‹L
-	double	rmd;			// İŒvü”g”‚Ì”g’·
+	int		RmdSel;			// ã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆç·¨é›†ã®æ³¢é•·è¡¨è¨˜
+	double	rmd;			// è¨­è¨ˆå‘¨æ³¢æ•°ã®æ³¢é•·
 
-	int		IntPos;			// 0-ŠÔŠu•\‹LC1-ˆÊ’u•\‹L
-	int		Wave;			// •\¦•Î”g
-	int		BwMatch;		// ü”g”“Á«‚Ì‘Ñˆæ•\¦ƒ}ƒbƒ`ƒ“ƒO
+	int		IntPos;			// 0-é–“éš”è¡¨è¨˜ï¼Œ1-ä½ç½®è¡¨è¨˜
+	int		Wave;			// è¡¨ç¤ºåæ³¢
+	int		BwMatch;		// å‘¨æ³¢æ•°ç‰¹æ€§ã®å¸¯åŸŸè¡¨ç¤ºãƒãƒƒãƒãƒ³ã‚°
 
-	int		Ant3D;			// ‚R‚c•\¦•û–@
-	int		CurDir;			// “d—¬•ûŒü‚Ì•\Œ»
-	int		FixFreeAngle;	// ©—R‹óŠÔ‚Ì‚ÍŒvZ‹ÂŠp‚ğ‚O“x‚ÉŒÅ’è
-	int		RecentMax;		// Recent File ‚Ì•\¦‚·‚é”
-	int		RecentMAA;		// Recent File ‚ÍMAAƒtƒ@ƒCƒ‹‚Ì‚İ
+	int		Ant3D;			// ï¼“ï¼¤è¡¨ç¤ºæ–¹æ³•
+	int		CurDir;			// é›»æµæ–¹å‘ã®è¡¨ç¾
+	int		FixFreeAngle;	// è‡ªç”±ç©ºé–“ã®æ™‚ã¯è¨ˆç®—ä»°è§’ã‚’ï¼åº¦ã«å›ºå®š
+	int		RecentMax;		// Recent File ã®è¡¨ç¤ºã™ã‚‹æ•°
+	int		RecentMAA;		// Recent File ã¯MAAãƒ•ã‚¡ã‚¤ãƒ«ã®ã¿
 
-	int		WindowState;	// ‰æ–Ê‚Ìó‘Ô
+	int		WindowState;	// ç”»é¢ã®çŠ¶æ…‹
 
-    int		EleWidthAll;	// ƒGƒŒƒƒ“ƒg•ÒW‚ÌÛ‚Ì‰¡•Ac•‚Ìˆµ‚¢
+    int		EleWidthAll;	// ã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆç·¨é›†ã®éš›ã®æ¨ªå¹…ã€ç¸¦å¹…ã®æ‰±ã„
 
-	CURFILE	*pCurFile;		// “d—¬ƒtƒ@ƒCƒ‹
-	NEARFILE *pNearFile;	// ‹ß‹——£“dŠE‹­“xƒtƒBƒAƒ‹
-	FARFILE	*pFarFile;		// ‰“‹——£“dŠE‹­“xƒtƒ@ƒCƒ‹
+	CURFILE	*pCurFile;		// é›»æµãƒ•ã‚¡ã‚¤ãƒ«
+	NEARFILE *pNearFile;	// è¿‘è·é›¢é›»ç•Œå¼·åº¦ãƒ•ã‚£ã‚¢ãƒ«
+	FARFILE	*pFarFile;		// é è·é›¢é›»ç•Œå¼·åº¦ãƒ•ã‚¡ã‚¤ãƒ«
 }EXEENV;
 extern	EXEENV	exeenv;
 
@@ -305,8 +305,8 @@ void AdjPdef(ANTDEF *ap);
 extern	char	BgnDir[128];
 extern	char	AntDir[128];
 extern	char	ResDir[128];
-extern	AnsiString	antDef;			// Å“K‰»‘O‚ÌƒAƒ“ƒeƒi’è‹`
-extern	AnsiString	antSave;		// ‹L‰¯‚µ‚½ƒAƒ“ƒeƒi’è‹`
+extern	AnsiString	antDef;			// æœ€é©åŒ–å‰ã®ã‚¢ãƒ³ãƒ†ãƒŠå®šç¾©
+extern	AnsiString	antSave;		// è¨˜æ†¶ã—ãŸã‚¢ãƒ³ãƒ†ãƒŠå®šç¾©
 
 //---------------------------------------------------------------------------
 #define	PAI		3.1415926535897932384626433832795
@@ -330,7 +330,7 @@ extern	AnsiString	antSave;		// ‹L‰¯‚µ‚½ƒAƒ“ƒeƒi’è‹`
 #define	SGN(c)	(((c)<0)?-1:(((c)>0)?1:0))
 //---------------------------------------------------------------------------
 ///---------------------------------------------------------
-///  ƒeƒLƒXƒgƒoƒbƒtƒ@ƒXƒgƒŠ[ƒ}[
+///  ãƒ†ã‚­ã‚¹ãƒˆãƒãƒƒãƒ•ã‚¡ã‚¹ãƒˆãƒªãƒ¼ãƒãƒ¼
 class StrText{
 public:
 	char	*Bp;
@@ -362,7 +362,7 @@ public:
 };
 
 ///---------------------------------------------------------
-///  ƒeƒLƒXƒgƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ}[
+///  ãƒ†ã‚­ã‚¹ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒãƒ¼
 class CTextFile
 {
 private:
@@ -419,7 +419,7 @@ public:
 };
 
 ///---------------------------------------------------------
-///  ƒeƒLƒXƒg•¶š—ñƒXƒgƒŠ[ƒ}[
+///  ãƒ†ã‚­ã‚¹ãƒˆæ–‡å­—åˆ—ã‚¹ãƒˆãƒªãƒ¼ãƒãƒ¼
 class CTextString
 {
 private:
@@ -461,7 +461,7 @@ public:
 };
 
 ///---------------------------------------------------------
-///  ƒeƒLƒXƒg•¶š—ñ‚e‚h‚e‚n
+///  ãƒ†ã‚­ã‚¹ãƒˆæ–‡å­—åˆ—ï¼¦ï¼©ï¼¦ï¼¯
 class CTextFifo
 {
 private:
@@ -526,7 +526,7 @@ public:
 };
 
 ///----------------------------------------------------------------
-///	•¡‘f”‰‰ZƒNƒ‰ƒX
+///	è¤‡ç´ æ•°æ¼”ç®—ã‚¯ãƒ©ã‚¹
 class CLX {
 public:
 	double	r;
@@ -650,18 +650,18 @@ public:
 #define	BWSMAX	(BWMAX-1)
 #define	BWSDIMMAX	4
 typedef struct {
-	int		Flag;	// —LŒøƒtƒ‰ƒO
-	double	FQ;		// ü”g”
-	double	R;		// ‚q
-	double	JX;		// ‚Š‚w
+	int		Flag;	// æœ‰åŠ¹ãƒ•ãƒ©ã‚°
+	double	FQ;		// å‘¨æ³¢æ•°
+	double	R;		// ï¼²
+	double	JX;		// ï½Šï¼¸
 	double	GA;
 	double	FB;
 }BWS;
 typedef struct {
-	int		Flag;	// —LŒøƒtƒ‰ƒO
-	double	FQ;		// ü”g”
-	double	R;		// ‚q
-	double	JX;		// ‚Š‚w
+	int		Flag;	// æœ‰åŠ¹ãƒ•ãƒ©ã‚°
+	double	FQ;		// å‘¨æ³¢æ•°
+	double	R;		// ï¼²
+	double	JX;		// ï½Šï¼¸
 	double	GA;
 	double	FB;
 	int		PFlag;
@@ -669,21 +669,21 @@ typedef struct {
 	short	PtnV[3][91];
 }BW;
 typedef struct {
-	int		bcnt;			// ‘ª’è‚µ‚½”
-	int		bo;				// İŒvƒf[ƒ^‚ÌƒCƒ“ƒfƒbƒNƒX
-	double	fo;				// İŒvü”g”
-	double	fw;				// ü”g”•
-	double	bi;				// ü”g”ŠÔŠu
+	int		bcnt;			// æ¸¬å®šã—ãŸæ•°
+	int		bo;				// è¨­è¨ˆãƒ‡ãƒ¼ã‚¿ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+	double	fo;				// è¨­è¨ˆå‘¨æ³¢æ•°
+	double	fw;				// å‘¨æ³¢æ•°å¹…
+	double	bi;				// å‘¨æ³¢æ•°é–“éš”
 	BW		bw[BWMAX];
 	int		bwsdim;			// 1, 2, 3, 4
 	int		bwsfull;		// 0 or 1
     BWS		bws[BWSMAX][BWSDIMMAX];
-	int		MatchCenter;	// ƒ}ƒbƒ`ƒ“ƒOü”g”
-    BWS		MatchData;		// ƒ}ƒbƒ`ƒ“ƒOƒf[ƒ^
+	int		MatchCenter;	// ãƒãƒƒãƒãƒ³ã‚°å‘¨æ³¢æ•°
+    BWS		MatchData;		// ãƒãƒƒãƒãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿
 }BWC;
-typedef struct {		// Œ‹‰Ê
-	int		TYPE;			// ŒvZğŒ
-	float	HEIGHT;			// ’nã‚
+typedef struct {		// çµæœ
+	int		TYPE;			// è¨ˆç®—æ¡ä»¶
+	float	HEIGHT;			// åœ°ä¸Šé«˜
 	float	FQ;
 	float	R;
 	float	JX;
@@ -692,27 +692,27 @@ typedef struct {		// Œ‹‰Ê
 	float	FB;
 	float	ELV;
 	int		FBR;
-	float	RO;				// SWRŒvZ‚y
-	float	JXO;			// SWRŒvZZ
-	float	MAXHP;			// …•½•Î”g‚ÌÅ‘å’l
-	float	MAXVP;			// ‚’¼•Î”g‚ÌÅ‘å’l
-	int		Wave;			// •Î”g
+	float	RO;				// SWRè¨ˆç®—ï¼º
+	float	JXO;			// SWRè¨ˆç®—Z
+	float	MAXHP;			// æ°´å¹³åæ³¢ã®æœ€å¤§å€¤
+	float	MAXVP;			// å‚ç›´åæ³¢ã®æœ€å¤§å€¤
+	int		Wave;			// åæ³¢
 }RESL;
 ///---------------------------------------------------------
-///  Œ‹‰ÊŠÇ—ƒNƒ‰ƒX
-#define	RMAX	128			// Œ‹‰Ê‚ÌƒqƒXƒgƒŠ
+///  çµæœç®¡ç†ã‚¯ãƒ©ã‚¹
+#define	RMAX	128			// çµæœã®ãƒ’ã‚¹ãƒˆãƒª
 class CRes
 {
 public:
-	char	Name[128];		// ƒAƒ“ƒeƒi‚Ì–¼Ì
+	char	Name[128];		// ã‚¢ãƒ³ãƒ†ãƒŠã®åç§°
 
-	int		RWp;			// Ÿ‚Ì‘‚«‚İˆÊ’u
-	int		RCnt;			// Œ»İ‚ÌŒ‹‰Ê‚Ì”
-	RESL	Res[RMAX];		// Œ‹‰Ê‚ÌƒqƒXƒgƒŠ
+	int		RWp;			// æ¬¡ã®æ›¸ãè¾¼ã¿ä½ç½®
+	int		RCnt;			// ç¾åœ¨ã®çµæœã®æ•°
+	RESL	Res[RMAX];		// çµæœã®ãƒ’ã‚¹ãƒˆãƒª
 
-	int		CalcF;			// ŒvZƒtƒ‰ƒO
+	int		CalcF;			// è¨ˆç®—ãƒ•ãƒ©ã‚°
 
-	int		PtnF;			// ƒpƒ^[ƒ“ŒvZ•ª‰ğ”\
+	int		PtnF;			// ãƒ‘ã‚¿ãƒ¼ãƒ³è¨ˆç®—åˆ†è§£èƒ½
 	int		Voff;
 	int		DegF;
 	int		DegV;
@@ -726,12 +726,12 @@ public:
 	float	MaxVP;
 	float	MaxHP;
 	float	Elv;
-	float	ElvHPtn;		// …•½ƒpƒ^[ƒ“‚Ì‹ÂŠp
+	float	ElvHPtn;		// æ°´å¹³ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ä»°è§’
 
-	float	Cur[PMAX];		// “d—¬•ª•zâ‘Î’lƒf[ƒ^
+	float	Cur[PMAX];		// é›»æµåˆ†å¸ƒçµ¶å¯¾å€¤ãƒ‡ãƒ¼ã‚¿
 
 	int		CurN;
-	BYTE	CurDir[PMAX];	// “d—¬•ûŒüƒf[ƒ^
+	BYTE	CurDir[PMAX];	// é›»æµæ–¹å‘ãƒ‡ãƒ¼ã‚¿
 	double	RealMax;
 	double	ImgMax;
 
@@ -786,7 +786,7 @@ public:
 		DegF = 2;
 		double dv = DegV;
 		if( dv >= (90/PtnF) ) dv = (180/PtnF) - dv;
-		Elv = dv*PtnF;		// b’è‚Ìƒs[ƒN
+		Elv = dv*PtnF;		// æš«å®šã®ãƒ”ãƒ¼ã‚¯
 	}
 	inline double GetElv(void){
 		if( Elv >= 90 ) Elv = 180 - Elv;
@@ -841,16 +841,16 @@ public:
 extern CRes	res;
 
 ///---------------------------------------------------------
-///  ƒpƒ^[ƒ“•`‰æƒNƒ‰ƒX
+///  ãƒ‘ã‚¿ãƒ¼ãƒ³æç”»ã‚¯ãƒ©ã‚¹
 class CDrawPtnH
 {
 public:
 	int		xl,yt,xr,yb;
-	RECT	rc;				// ‰~‚Ì³•ûŒ`
+	RECT	rc;				// å††ã®æ­£æ–¹å½¢
 	int		xc, yc;
 	int		rr;
 	int		ri;
-	TCanvas	*tp;			// ƒLƒƒƒ“ƒoƒX‚Ìƒ|ƒCƒ“ƒ^
+	TCanvas	*tp;			// ã‚­ãƒ£ãƒ³ãƒã‚¹ã®ãƒã‚¤ãƒ³ã‚¿
 
 	double	Max;			// 0db == max
 	TColor	gCol;
@@ -874,16 +874,16 @@ public:
 
 
 ///---------------------------------------------------------
-///  ƒpƒ^[ƒ“•`‰æƒNƒ‰ƒX
+///  ãƒ‘ã‚¿ãƒ¼ãƒ³æç”»ã‚¯ãƒ©ã‚¹
 class CDrawPtnV
 {
 public:
 	int		xl,yt,xr,yb;
-	RECT	rc;				// ‰~‚Ì³•ûŒ`
+	RECT	rc;				// å††ã®æ­£æ–¹å½¢
 	int		xc, yc;
 	int		rr;
 	int		ri;
-	TCanvas	*tp;			// ƒLƒƒƒ“ƒoƒX‚Ìƒ|ƒCƒ“ƒ^
+	TCanvas	*tp;			// ã‚­ãƒ£ãƒ³ãƒã‚¹ã®ãƒã‚¤ãƒ³ã‚¿
 
 	double	Max;			// 0db == max
 	TColor	gCol;
@@ -910,7 +910,7 @@ public:
 };
 
 ///---------------------------------------------------------
-///  ƒRƒ“ƒgƒ[ƒ‹‚ÌƒAƒ‰ƒCƒ“‚ÌŠÇ—ƒNƒ‰ƒX
+///  ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®ã‚¢ãƒ©ã‚¤ãƒ³ã®ç®¡ç†ã‚¯ãƒ©ã‚¹
 class CAlign
 {
 private:
@@ -935,7 +935,7 @@ public:
 };
 
 ///---------------------------------------------------------
-///  ƒRƒ“ƒgƒ[ƒ‹‚ÌƒAƒ‰ƒCƒ“‚ÌŠÇ—ƒNƒ‰ƒX
+///  ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®ã‚¢ãƒ©ã‚¤ãƒ³ã®ç®¡ç†ã‚¯ãƒ©ã‚¹
 class CAlignList
 {
 private:
@@ -976,29 +976,29 @@ public:
 
 
 enum CWTYPE {
-	cwNULL,		// •s–¾
-	cwVDP,		// ‚’¼DP
-	cwVSQ,		// ‚’¼ 
-	cwVDM,		// ‚’¼
-	cwVTA,		// ‚’¼¢
-	cwVITA,		// ‚’¼¤
-	cwVPIE,		// ‚’¼›
-	cwVLP,		// ‚’¼ƒ‹[ƒv
-	cwHDP,		// …•½DP
-	cwHSQ,		// …•½ 
-	cwHDM,		// …•½
-	cwHTA,		// …•½¢
-	cwHITA,		// …•½¤
-	cwHLP,		// …•½ƒ‹[ƒv
-	cwHANT,		// …•½Œn
-	cwVANT,		// ‚’¼Œn
-	cwVSQ2,		// ‚’¼‘o 
-	cwVTA2,		// ‚’¼‘o¤
+	cwNULL,		// ä¸æ˜
+	cwVDP,		// å‚ç›´DP
+	cwVSQ,		// å‚ç›´â–¡
+	cwVDM,		// å‚ç›´â—‡
+	cwVTA,		// å‚ç›´â–³
+	cwVITA,		// å‚ç›´â–½
+	cwVPIE,		// å‚ç›´â—‹
+	cwVLP,		// å‚ç›´ãƒ«ãƒ¼ãƒ—
+	cwHDP,		// æ°´å¹³DP
+	cwHSQ,		// æ°´å¹³â–¡
+	cwHDM,		// æ°´å¹³â—‡
+	cwHTA,		// æ°´å¹³â–³
+	cwHITA,		// æ°´å¹³â–½
+	cwHLP,		// æ°´å¹³ãƒ«ãƒ¼ãƒ—
+	cwHANT,		// æ°´å¹³ç³»
+	cwVANT,		// å‚ç›´ç³»
+	cwVSQ2,		// å‚ç›´åŒâ–¡
+	cwVTA2,		// å‚ç›´åŒâ–½
 };
 typedef struct {
 	int		ref;
 	WDEF	*wp;
-	double	D;				// ƒƒCƒ„‚Ì‹——£
+	double	D;				// ãƒ¯ã‚¤ãƒ¤ã®è·é›¢
 	double	XX;
 	double	YY;
 	double	ZZ;
@@ -1007,7 +1007,7 @@ typedef struct {
 	int		LCF;
 }WREF;
 typedef struct {
-	double	X, Y, Z;		// ’¸“_‚ÌÀ•W
+	double	X, Y, Z;		// é ‚ç‚¹ã®åº§æ¨™
 	double	VXY;
 	double	VYZ;
 }LOOPS;
@@ -1015,23 +1015,23 @@ typedef struct {
 class CWGroup
 {
 private:
-	int		bmax;		// ƒƒCƒ„”z—ñ‚Ì”
-	WDEF	*pW;		// ƒƒCƒ„’è‹`”z—ñ‚Ìƒ|ƒCƒ“ƒ^
+	int		bmax;		// ãƒ¯ã‚¤ãƒ¤é…åˆ—ã®æ•°
+	WDEF	*pW;		// ãƒ¯ã‚¤ãƒ¤å®šç¾©é…åˆ—ã®ãƒã‚¤ãƒ³ã‚¿
 	double	YL;
 	double	YH;
 	double	ZL;
 	double	ZH;
 	double	XL;
 	double	XH;
-	int		XwF;		// ƒ‹[ƒvƒAƒ“ƒeƒiƒtƒ‰ƒO
+	int		XwF;		// ãƒ«ãƒ¼ãƒ—ã‚¢ãƒ³ãƒ†ãƒŠãƒ•ãƒ©ã‚°
 public:
-	int		Type;		// Œ`®
-	int		bcnt;		// ƒƒCƒ„‚Ì”
-	int		EnbR;		// ‚q•ÏX‰Â”\ƒtƒ‰ƒO
-	int		EnbSeg;		// SEG•ÏX‰Â”\ƒtƒ‰ƒO
-	WREF	*pB;		// ƒƒCƒ„ƒŠƒXƒg‚Ì”z—ñ
+	int		Type;		// å½¢å¼
+	int		bcnt;		// ãƒ¯ã‚¤ãƒ¤ã®æ•°
+	int		EnbR;		// ï¼²å¤‰æ›´å¯èƒ½ãƒ•ãƒ©ã‚°
+	int		EnbSeg;		// SEGå¤‰æ›´å¯èƒ½ãƒ•ãƒ©ã‚°
+	WREF	*pB;		// ãƒ¯ã‚¤ãƒ¤ãƒªã‚¹ãƒˆã®é…åˆ—
 
-	double	BX;				// ’†SˆÊ’u‚ÌÀ•W
+	double	BX;				// ä¸­å¿ƒä½ç½®ã®åº§æ¨™
 	double	BY;
 	double	BZ;
 private:
@@ -1049,17 +1049,17 @@ public:
 	void Alloc(void);
 	void AddWire(int Index);
 	void AnaWire(void);
-	inline double GetX(void){			// ‚w²ƒ|ƒWƒVƒ‡ƒ“‚ğ“¾‚é
+	inline double GetX(void){			// ï¼¸è»¸ãƒã‚¸ã‚·ãƒ§ãƒ³ã‚’å¾—ã‚‹
 		return BX;
 	};
-	inline double GetHeight(void){		// ‚‚³‚ğ“¾‚é
+	inline double GetHeight(void){		// é«˜ã•ã‚’å¾—ã‚‹
 		return (ZH != ZL) ? ZH - ZL : (XwF == 0) ? XH - XL : 0.0;
 	};
-	inline double GetWidth(void){		// ‰¡•‚ğ“¾‚é
+	inline double GetWidth(void){		// æ¨ªå¹…ã‚’å¾—ã‚‹
 		return (YH != YL) ? YH - YL : (XwF == 0) ? XH - XL : 0.0;
 	};
-	double GetRound(void);		// ‘Sü‚ğ“¾‚é
-	void SetRound(double d);	// ‘Sü‚ğİ’è‚·‚é
+	double GetRound(void);		// å…¨å‘¨ã‚’å¾—ã‚‹
+	void SetRound(double d);	// å…¨å‘¨ã‚’è¨­å®šã™ã‚‹
 	inline double GetR(void){
 		if( bcnt ){
 			return pB->wp->R;
@@ -1079,7 +1079,7 @@ public:
 	void SetXWidth(double W);
 	void SetWidth(double W);
 	void SetHeight(double W);
-	void SetRoundAll(double d);	// ‘Sü‚ğİ’è‚·‚é
+	void SetRoundAll(double d);	// å…¨å‘¨ã‚’è¨­å®šã™ã‚‹
 	void SetXWidthAll(double W);
 	void SetWidthAll(double W);
 	void SetHeightAll(double W);
@@ -1092,7 +1092,7 @@ public:
 	void SetXWidth(int all, double W);
 	void SetWidth(int all, double W);
 	void SetHeight(int all, double W);
-	void SetRound(int all, double d);	// ‘Sü‚ğİ’è‚·‚é
+	void SetRound(int all, double d);	// å…¨å‘¨ã‚’è¨­å®šã™ã‚‹
 };
 
 #define	CWMAX	256
@@ -1105,7 +1105,7 @@ private:
 public:
 	int		gmax;
 	CWGroup	List[CWMAX];
-	int		BaseW;			// Šî€ƒƒCƒ„ˆÊ’u
+	int		BaseW;			// åŸºæº–ãƒ¯ã‚¤ãƒ¤ä½ç½®
 	double	Intval[CWMAX];
 
 	ANTDEF	*ap;
@@ -1152,41 +1152,41 @@ enum AVTYPE {
 	avFEED,
 	avSTACK,
 };
-#define	AVMAX	128		// ˆ—‚Å‚«‚éÅ“K‰»ƒoƒŠƒAƒuƒ‹‚ÌÅ‘å”
-// Å“K‰»ƒoƒŠƒAƒuƒ‹‚Ì”z—ñ\‘¢
+#define	AVMAX	128		// å‡¦ç†ã§ãã‚‹æœ€é©åŒ–ãƒãƒªã‚¢ãƒ–ãƒ«ã®æœ€å¤§æ•°
+// æœ€é©åŒ–ãƒãƒªã‚¢ãƒ–ãƒ«ã®é…åˆ—æ§‹é€ 
 typedef struct {
-	int		Type;		// ƒoƒŠƒAƒuƒ‹‚ÌŒ`®  0-Ü²Ô, 1-´ÚÒİÄ, 2-Û°ÄŞ, 3-’nã‚
-	int		With;			// ŠÖ˜A”Ô†(-1:ŠÖ˜A‚È‚µ, 0` ŠÖ˜A•t‚¯‚Ì”Ô†)
-	int		Pos;			// •Ï”‚ÌˆÊ’u(ƒƒCƒ„”Ô†,´ÚÒİÄ”Ô†,Û°ÄŞ”Ô†“™)
-	int		SubPos;			// •Ï”‚Ì‰ÓŠ
+	int		Type;		// ãƒãƒªã‚¢ãƒ–ãƒ«ã®å½¢å¼  0-ï¾œï½²ï¾”, 1-ï½´ï¾šï¾’ï¾ï¾„, 2-ï¾›ï½°ï¾„ï¾, 3-åœ°ä¸Šé«˜
+	int		With;			// é–¢é€£ç•ªå·(-1:é–¢é€£ãªã—, 0ï½ é–¢é€£ä»˜ã‘ã®ç•ªå·)
+	int		Pos;			// å¤‰æ•°ã®ä½ç½®(ãƒ¯ã‚¤ãƒ¤ç•ªå·,ï½´ï¾šï¾’ï¾ï¾„ç•ªå·,ï¾›ï½°ï¾„ï¾ç•ªå·ç­‰)
+	int		SubPos;			// å¤‰æ•°ã®ç®‡æ‰€
 	USHORT	Min;
 	USHORT	Max;
 	int		Dummy1;
 	int		Dummy2;
 
-	double	DW;				// ‰Â•Ï•
-	double	DMAX;			// Å“K‰»Å‘å§ŒÀ‚Ì’l
-	double	DMIN;			// Å“K‰»Å¬§ŒÀ‚Ì’l
-	double	DIO;			// Å“K‰»‚Ì‰ŠúŠÔŠu
-	double	DI;				// Å“K‰»‚ÌÀsŠÔŠu
-	double	DC;				// Œ»İ‚Ì’l
+	double	DW;				// å¯å¤‰å¹…
+	double	DMAX;			// æœ€é©åŒ–æœ€å¤§åˆ¶é™ã®å€¤
+	double	DMIN;			// æœ€é©åŒ–æœ€å°åˆ¶é™ã®å€¤
+	double	DIO;			// æœ€é©åŒ–ã®åˆæœŸé–“éš”
+	double	DI;				// æœ€é©åŒ–ã®å®Ÿè¡Œé–“éš”
+	double	DC;				// ç¾åœ¨ã®å€¤
 }AVAL;
 
 #define BMAX	10
-typedef struct {			// ‹‹“d“_‚Ì’è‹`
+typedef struct {			// çµ¦é›»ç‚¹ã®å®šç¾©
 	double	fq;
 	CDEF	cdef[4];
 }BDEF;
-// –Ú•W‚Ì\‘¢
+// ç›®æ¨™ã®æ§‹é€ 
 typedef struct {
-	int		TF;				// –Ú•W‚ ‚è^‚È‚µ
-	double	TG;				// ‚f‚ÌƒgƒŒ[ƒhƒIƒt
-	double	TFB;			// ‚e‚a‚ÌƒgƒŒ[ƒhƒIƒt
-	double	TJX;			// ‚i‚w‚ÌƒgƒŒ[ƒhƒIƒt
-	double	TSWR;			// ‚r‚v‚q‚ÌƒgƒŒ[ƒhƒIƒt
-	double	TELV;			// ƒGƒŒƒx[ƒVƒ‡ƒ“
-	double	TM;				// ƒVƒ“ƒvƒ‹ƒ}ƒbƒ`ƒ“ƒO
-	double	TI;				// “d—¬
+	int		TF;				// ç›®æ¨™ã‚ã‚Šï¼ãªã—
+	double	TG;				// ï¼§ã®ãƒˆãƒ¬ãƒ¼ãƒ‰ã‚ªãƒ•
+	double	TFB;			// ï¼¦ï¼¢ã®ãƒˆãƒ¬ãƒ¼ãƒ‰ã‚ªãƒ•
+	double	TJX;			// ï¼ªï¼¸ã®ãƒˆãƒ¬ãƒ¼ãƒ‰ã‚ªãƒ•
+	double	TSWR;			// ï¼³ï¼·ï¼²ã®ãƒˆãƒ¬ãƒ¼ãƒ‰ã‚ªãƒ•
+	double	TELV;			// ã‚¨ãƒ¬ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³
+	double	TM;				// ã‚·ãƒ³ãƒ—ãƒ«ãƒãƒƒãƒãƒ³ã‚°
+	double	TI;				// é›»æµ
 
 	double	CG;
 	double	CFB;
@@ -1196,64 +1196,64 @@ typedef struct {
 	double	CELV;
 	double	CM;
 
-	double	V;				// •]‰¿’l
-	double	AM;				// ‘O‰ñ‚Ì•]‰¿’l
-	double	VM;				// Å‘å‚Ì•]‰¿’l
-	double	AD[AVMAX];		// Å‘å‚ÌŠe•Ï”‚Ì’l
+	double	V;				// è©•ä¾¡å€¤
+	double	AM;				// å‰å›ã®è©•ä¾¡å€¤
+	double	VM;				// æœ€å¤§ã®è©•ä¾¡å€¤
+	double	AD[AVMAX];		// æœ€å¤§æ™‚ã®å„å¤‰æ•°ã®å€¤
 
-	int		bmax;			// ƒoƒ“ƒh‚Ì”
+	int		bmax;			// ãƒãƒ³ãƒ‰ã®æ•°
 	int		bweight;
-	BDEF	bdef[BMAX];		// ƒoƒ“ƒh‚Ì’è‹`
+	BDEF	bdef[BMAX];		// ãƒãƒ³ãƒ‰ã®å®šç¾©
 
-	double	MaxGain;		// –Ú•WÅ‘åƒQƒCƒ“
-	double	MaxFB;			// –Ú•WÅ‘å‚e‚a”ä
+	double	MaxGain;		// ç›®æ¨™æœ€å¤§ã‚²ã‚¤ãƒ³
+	double	MaxFB;			// ç›®æ¨™æœ€å¤§ï¼¦ï¼¢æ¯”
 	double	MinJX;
 	double	MinSWR;
 	int		Match;
 	double	TergR;
 	double	TergJX;
 
-	int		IType;			// 0-“d—¬Å‘å, 1-“d—¬Å¬
-	char	IPLUS[8+1];		// “d—¬ˆÊ’u
-	double	CurCur;			// Œ»İ‚Ì“d—¬’l
+	int		IType;			// 0-é›»æµæœ€å¤§, 1-é›»æµæœ€å°
+	char	IPLUS[8+1];		// é›»æµä½ç½®
+	double	CurCur;			// ç¾åœ¨ã®é›»æµå€¤
 }ATRG;
-#define	MVMAX	128			// ‹L˜^ƒŠƒXƒg‚Ì”
-typedef struct {			// ‹L‰¯ƒŠƒXƒg‚Ì\‘¢
-	double	AD[AVMAX];			// ƒpƒ‰ƒ[ƒ^‚Ìó‘Ô
-	double	V;					// •]‰¿’l
+#define	MVMAX	128			// è¨˜éŒ²ãƒªã‚¹ãƒˆã®æ•°
+typedef struct {			// è¨˜æ†¶ãƒªã‚¹ãƒˆã®æ§‹é€ 
+	double	AD[AVMAX];			// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®çŠ¶æ…‹
+	double	V;					// è©•ä¾¡å€¤
 
-	float	CG;					// •\¦—p
+	float	CG;					// è¡¨ç¤ºç”¨
 	float	CFB;
 	float	CRR;
 	float	CJX;
 	float	CSWR;
 	float	CELV;
-	short	PtnH[180];			// 2“x•ª‰ğ”\‚Ì…•½ƒpƒ^[ƒ“
-	short	PtnV[91];			// 2“x•ª‰ğ”\‚Ì‚’¼ƒpƒ^[ƒ“
+	short	PtnH[180];			// 2åº¦åˆ†è§£èƒ½ã®æ°´å¹³ãƒ‘ã‚¿ãƒ¼ãƒ³
+	short	PtnV[91];			// 2åº¦åˆ†è§£èƒ½ã®å‚ç›´ãƒ‘ã‚¿ãƒ¼ãƒ³
 }MVAL;
-// Å“K‰»ÀsƒNƒ‰ƒX
+// æœ€é©åŒ–å®Ÿè¡Œã‚¯ãƒ©ã‚¹
 class CACal
 {
 public:
-	AVAL	aval[AVMAX];	// •Ï”‚Ì”z—ñ
-	int		amax;			// “o˜^‚µ‚½•Ï”‚Ì”
-	CWGroupList	WList;		// ƒGƒŒƒƒ“ƒgƒf[ƒ^
-	ATRG	atrg;			// –Ú•W‚Ìƒf[ƒ^
-	int		PitchUnit;		// ƒsƒbƒ`‚Ì’PˆÊ
-	int		DegUnit;		// ƒpƒ^[ƒ“‚Ì•ª‰ğ”\
+	AVAL	aval[AVMAX];	// å¤‰æ•°ã®é…åˆ—
+	int		amax;			// ç™»éŒ²ã—ãŸå¤‰æ•°ã®æ•°
+	CWGroupList	WList;		// ã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿
+	ATRG	atrg;			// ç›®æ¨™ã®ãƒ‡ãƒ¼ã‚¿
+	int		PitchUnit;		// ãƒ”ãƒƒãƒã®å˜ä½
+	int		DegUnit;		// ãƒ‘ã‚¿ãƒ¼ãƒ³ã®åˆ†è§£èƒ½
 
 	double	BV[BMAX];
 	double	BVM[BMAX];
 
 	ENVDEF	*EP;
 	ANTDEF	*AP;
-	CRes	maxres;			// Å‘å‚ÌŒ‹‰Ê‚Ìƒf[ƒ^
+	CRes	maxres;			// æœ€å¤§æ™‚ã®çµæœã®ãƒ‡ãƒ¼ã‚¿
 	char	InfoTTL[192];
 	char	Info[192];
 private:
-	MVAL	mval[MVMAX];	// ‹L‰¯ƒŠƒXƒg‚Ì”z—ñ
-	int		mvwp;			// Ÿ‚Ì‘‚«‚İˆÊ’u
-	int		mvmax;			// Œ»İ‚Ìƒf[ƒ^”
+	MVAL	mval[MVMAX];	// è¨˜æ†¶ãƒªã‚¹ãƒˆã®é…åˆ—
+	int		mvwp;			// æ¬¡ã®æ›¸ãè¾¼ã¿ä½ç½®
+	int		mvmax;			// ç¾åœ¨ã®ãƒ‡ãƒ¼ã‚¿æ•°
 private:
 	void WriteMV(void);
 	int IsMV(double &max);
@@ -1294,8 +1294,8 @@ public:
 		}
 	};
 	int GetLastChen(int c, int n);
-	int WriteToFp(FILE *fp);		// ƒZƒbƒgƒAƒbƒv‚ÌƒZ[ƒu
-	int ReadFromFp(FILE *fp);		// ƒZƒbƒgƒAƒbƒv‚Ìƒ[ƒh
+	int WriteToFp(FILE *fp);		// ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã®ã‚»ãƒ¼ãƒ–
+	int ReadFromFp(FILE *fp);		// ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã®ãƒ­ãƒ¼ãƒ‰
 	inline int GetMV(void){
 		return mvmax;
 	};
@@ -1316,7 +1316,7 @@ public:
 };
 
 ///-------------------------------------------------------
-/// ƒNƒŠƒbƒsƒ“ƒOƒNƒ‰ƒX
+/// ã‚¯ãƒªãƒƒãƒ”ãƒ³ã‚°ã‚¯ãƒ©ã‚¹
 class CClip {
 private:
 	int		Xl;
@@ -1408,14 +1408,14 @@ public:
 
 
 ///-------------------------------------------------------
-/// CRecentMenuƒNƒ‰ƒX
-#define	RECMENUMAX	10	// ˆ—‚Å‚«‚éÅ‘å‚Ì”
+/// CRecentMenuã‚¯ãƒ©ã‚¹
+#define	RECMENUMAX	10	// å‡¦ç†ã§ãã‚‹æœ€å¤§ã®æ•°
 class CRecentMenu
 {
 private:
 public:
-	int		InsPos;		// ƒƒjƒ…[‘}“üˆÊ’u‚Ì”Ô†
-	int		Max;		// ˆ—‚·‚é”
+	int		InsPos;		// ãƒ¡ãƒ‹ãƒ¥ãƒ¼æŒ¿å…¥ä½ç½®ã®ç•ªå·
+	int		Max;		// å‡¦ç†ã™ã‚‹æ•°
 	AnsiString	Caption[RECMENUMAX];
 	TMenuItem	*pMenu;
 	TMenuItem	*Items[RECMENUMAX+1];
